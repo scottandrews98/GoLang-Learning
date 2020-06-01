@@ -35,16 +35,15 @@ func getPages(w http.ResponseWriter, r *http.Request){
 		userID, invalidAPIKey := checkAPIKey(db, apiConvert)
 
 		if invalidAPIKey == false{
-			totalCount := viewCount(db, userID)
-			fmt.Printf(totalCount)
-			fmt.Fprintf(w, "Total Page Views: " +html.UnescapeString(totalCount)+ "")
+			websiteDropdown := viewCount(db, userID)
+
+			fmt.Fprintf(w, "Select Website: "+ html.UnescapeString(websiteDropdown) +" <button>Get Views</button>")
+		}else{
+			fmt.Fprintf(w, "Invalid API Key")
 		}
 	}else{
 		fmt.Fprintf(w, "Invalid Params")
 	}
-
-
-
 }
 
 func checkErr(err error) {
@@ -62,7 +61,6 @@ func checkAPIKey(db *sql.DB, apiKey string) (int, bool){
 	var rowCount int
 
 	for rows.Next() {
-		
 		err = rows.Scan(&id)
 		checkErr(err)
 		rowCount += 1
@@ -90,10 +88,8 @@ func viewCount(db *sql.DB, userID int) string{
 
 	for rows.Next() {
 		website := new(websites)
-
 		err = rows.Scan(&website.id, &website.websiteURL)
 		checkErr(err)
-
 		websiteArray = append(websiteArray, website)
 	}
 
@@ -102,12 +98,12 @@ func viewCount(db *sql.DB, userID int) string{
 		returnSelect = "<select>"
 
 		for i := 0; i < len(websiteArray); i++ {
-			returnSelect+= "<option>"+websiteArray[i].websiteURL+"</option>"
+			returnSelect+= "<option value='"+ strconv.Itoa(websiteArray[i].id) +"'>"+websiteArray[i].websiteURL+"</option>"
 		}
 
 		returnSelect += "</select>"
 	}else{	
-		returnSelect = "<select><option>"+websiteArray[0].websiteURL+"</option></select>"
+		returnSelect = "<select><option value='"+ strconv.Itoa(websiteArray[0].id) +"'>"+websiteArray[0].websiteURL+"</option></select>"
 	}	
 
 	return returnSelect
