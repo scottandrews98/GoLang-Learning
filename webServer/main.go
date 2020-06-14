@@ -40,25 +40,46 @@ func handleAPIRoutes(w http.ResponseWriter, r *http.Request){
 
 	apiKey := r.URL.Query()["apikey"]
 	websiteID := r.URL.Query()["websiteid"]
+	dateFrom := r.URL.Query()["datefrom"]
+	dateTo := r.URL.Query()["dateto"]
 
-	if len(apiKey) > 0 && len(websiteID) > 0{
+	if len(apiKey) > 0{
 		apiConvert := strings.Join(apiKey, " ")
 		websiteIDConvert := strings.Join(websiteID," ")
+		dateFromConvert := strings.Join(dateFrom, " ")
+		dateToConvert := strings.Join(dateTo, " ")
 
 		var apiReponse []byte
+		var invalidAPIKey bool
 
-		// Check api Key First on any route thats /api
-		invalidAPIKey := checkAPIKey(db, apiConvert, websiteIDConvert)
+		// Check api Key First on any route thats /api unless its the fetch websites route
+		if html.EscapeString(r.URL.Path) == "/api/getwebsites"{
+			invalidAPIKey = false
+		}else{
+			invalidAPIKey = checkAPIKey(db, apiConvert, websiteIDConvert)
+		}
 
+	
 		if invalidAPIKey == false{
 			switch html.EscapeString(r.URL.Path) {
 				case "/api/getviews":
-					apiReponse, err = viewCount(db, websiteIDConvert)
+					// Check to make sure values are expected
+					valuesExpected := checkRequest([]string{websiteIDConvert})
+
+					if valuesExpected == true{
+						apiReponse, err = viewCount(db, websiteIDConvert, dateFromConvert, dateToConvert)
+					}else{
+						badRequest(w)
+					}	
+					
+				case "/api/getwebsites":
+					apiReponse, err = websites(db, apiConvert)
+
 				default:
 					fmt.Fprintf(w, "Welcome To The No Track Website Stats API")
 			}
 
-			if(err == nil){
+			if err == nil{
 				w.Header().Set("Content-Type", "application/json")
 				fmt.Fprintf(w, string(apiReponse))
 			}else{
@@ -70,6 +91,8 @@ func handleAPIRoutes(w http.ResponseWriter, r *http.Request){
 			w.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprintf(w, "Invalid API Key")
 		}
+	}else{
+		badRequest(w)
 	}
 }
 
@@ -99,4 +122,22 @@ func checkErr(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// Checks for the correct parameters in each request
+func checkRequest(requiredValues []string) bool{
+	emptyVariable := true
+
+	for i := 0; i < len(requiredValues); i++ { 
+        if len(requiredValues[i]) <= 0{
+			emptyVariable = false
+		}
+    } 
+  
+	return emptyVariable
+}
+
+func badRequest(w http.ResponseWriter){
+	w.WriteHeader(http.StatusBadRequest)
+	fmt.Fprintf(w, "Invalid Request Parameters")
 }

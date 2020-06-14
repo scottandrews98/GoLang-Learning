@@ -1,0 +1,14 @@
+{
+  "name": "golf_logger",
+  "version": "1.0.0",
+  "description": "a web tool to log all of my golf trips",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Scott Andrews",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^3.9.5"
+  }
+}
