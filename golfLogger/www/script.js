@@ -37,16 +37,21 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 document.getElementById("callapi").addEventListener("click", postData);
 function postData() {
     var response = callAPI();
-    console.log(response);
+    console.log(Promise.resolve(response));
 }
 function callAPI() {
     return __awaiter(this, void 0, void 0, function () {
+        var test, text;
         return __generator(this, function (_a) {
-            fetch("http://localhost:9090/api/", { mode: 'cors' })
-                .then(function (response) {
-                return response.text();
-            });
-            return [2 /*return*/];
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetch("http://localhost:9090/api/", { mode: 'cors' })];
+                case 1:
+                    test = _a.sent();
+                    return [4 /*yield*/, test.text()];
+                case 2:
+                    text = _a.sent();
+                    return [2 /*return*/, text];
+            }
         });
     });
 }

@@ -8,6 +8,13 @@
     <body>
         <h1>Golf Logger</h1>
 
-        <button id="callapi">Call Api</button>
+        <form method="POST">
+            <select name="golfType">
+                <option value="drivingRange">Driving Range</option>
+            </select>
+            <input type="number" placeholder="Total Shots" name="totalShots">
+
+            <button id="callapi">Add Golf Event</button>
+        </form>
     </body>
 </html>
