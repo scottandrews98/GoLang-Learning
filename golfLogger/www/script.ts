@@ -1,10 +1,15 @@
 
-document.getElementById("callapi").addEventListener("click", callAPI)
+document.getElementById("callapi").addEventListener("click", postData)
 
-function callAPI(){
+function postData(){
+    var response: string = callAPI()
+
+    console.log(response);
+}
+
+async function callAPI(){
     fetch("http://localhost:9090/api/", {mode: 'cors'})
     .then(response =>{
-        console.log(response)
+        return response.text();
     })
-    //.then(response =)
 }
