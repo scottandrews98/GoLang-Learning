@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
+
 	"go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func apiRequest(w http.ResponseWriter, r *http.Request) {
@@ -21,11 +25,11 @@ func apiRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		type := r.FormValue("golftype")
+		golfType := r.FormValue("golftype")
 		shots := r.FormValue("shots")
 		//fmt.Fprintf(w, "Name = %s\n", name)
 		//fmt.Fprintf(w, "Address = %s\n", address)
-		newDocument(type, shots)
+		newDocument(golfType, strconv.Atoi(shots))
 	default:
 		fmt.Fprintf(w, "Welcome To The No Track Website Stats API")
 	}
