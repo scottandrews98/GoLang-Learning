@@ -8,11 +8,11 @@
     <body>
         <h1>Golf Logger</h1>
 
-        <form method="POST">
-            <select name="golfType">
-                <option value="drivingRange">Driving Range</option>
+        <form method="POST" onsubmit="event.preventDefault();">
+            <select name="golfType" id="golfType">
+                <option value="Driving Range">Driving Range</option>
             </select>
-            <input type="number" placeholder="Total Shots" name="totalShots">
+            <input type="number" placeholder="Total Shots" name="totalShots" id="totalShots">
 
             <button id="callapi">Add Golf Event</button>
         </form>
