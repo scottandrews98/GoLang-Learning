@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
@@ -13,47 +13,38 @@ import (
 )
 
 type Sessions struct {
-	golfType string `bson:"golfType"`
-	value    int    `bson:"value"`
+	//ID       primitive.ObjectID `json:"Id,omitempty" bson:"_id,omitempty"`
+	GolfType string `json:"GolfType,omitempty" bson:"golfType,omitempty"`
+	Value    int    `json:"Value,omitempty" bson:"value,omitempty"`
 }
 
 func getSessions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-
-	//var results = make([]*Sessions, 0)
+	w.Header().Set("Content-Type", "application/json")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	collection := client.Database("golfPlayer").Collection("sessions")
 
 	cursor, err := collection.Find(ctx, bson.M{})
+	var sessions []Sessions
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for cursor.Next(ctx) {
+		var session Sessions
 
-		sessions := Sessions{}
-		err := cursor.Decode(&sessions)
+		err := cursor.Decode(&session)
 		if err != nil {
 			log.Fatal(err)
-		} else {
-			fmt.Println(cursor)
 		}
-
-		//results = append(results, sessions)
+		sessions = append(sessions, session)
 	}
-
-	//fmt.Fprintf(w, results)
-	// fmt.Println(results)
 
 	defer cancel()
 
-	// pagesJson, err := json.Marshal(results)
-	// if err != nil {
-	// 	log.Fatal("Cannot encode to JSON ", err)
-	// }
-	// fmt.Fprintf(os.Stdout, "%s", pagesJson)
+	json.NewEncoder(w).Encode(sessions)
 }

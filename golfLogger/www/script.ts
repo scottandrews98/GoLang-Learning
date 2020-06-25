@@ -42,7 +42,15 @@ function loadEvents(){
 
     http.onreadystatechange = function() {
         if(http.readyState == 4 && http.status == 200) {
-            alert(http.responseText);
+            let sessions = JSON.parse(http.responseText);
+
+            for(var i = 0; i < sessions.length; i++) {
+                var obj = sessions[i];
+            
+                var sessionsDiv = document.getElementById('golfEvents');
+
+                sessionsDiv.innerHTML += '<p>Golf Type: '+ obj.GolfType+' Total Shots: '+obj.Value+'';
+            }
         }
     }
     http.send();
