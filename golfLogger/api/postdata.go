@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -27,17 +28,40 @@ func apiRequest(w http.ResponseWriter, r *http.Request) {
 
 		golfType := r.FormValue("golftype")
 		shots := r.FormValue("shots")
-		//fmt.Fprintf(w, "Name = %s\n", name)
-		//fmt.Fprintf(w, "Address = %s\n", address)
-		newDocument(golfType, strconv.Atoi(shots))
+		shotsInt, err := strconv.Atoi(shots)
+
+		if err != nil {
+			checkError(err)
+		}
+
+		inputResponse := newDocument(golfType, shotsInt)
+
+		if inputResponse == true {
+			fmt.Fprintf(w, "Data Added")
+		} else {
+			fmt.Fprintf(w, "Error Adding Data")
+		}
 	default:
 		fmt.Fprintf(w, "Welcome To The No Track Website Stats API")
 	}
 }
 
 func newDocument(golfType string, shots int) bool {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 
+	collection := client.Database("golfPlayer").Collection("sessions")
+	collection.InsertOne(ctx, bson.M{"golfType": golfType, "value": shots})
+
+	if err != nil {
+		checkError(err)
+	}
+
+	defer cancel()
+
 	return true
+}
+
+func checkError(err error) {
+	fmt.Printf("err: %v", err)
 }

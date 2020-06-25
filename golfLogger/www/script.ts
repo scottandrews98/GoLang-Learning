@@ -1,5 +1,6 @@
 
 document.getElementById("callapi").addEventListener("click", postData)
+document.addEventListener("DOMContentLoaded", loadEvents)
 
 function postData(){
     //var response: Promise<String> = callAPI()
@@ -16,7 +17,7 @@ function postData(){
 
 function submitForm(golfType, totalShots){
     var http = new XMLHttpRequest();
-    var url = 'http://localhost:9090/api/';
+    var url = 'http://localhost:9090/api/addsession';
     var params = 'golftype='+golfType+'&shots='+totalShots+'';
     http.open('POST', url, true);
 
@@ -30,3 +31,19 @@ function submitForm(golfType, totalShots){
     }
     http.send(params);
 }
+
+function loadEvents(){
+    var http = new XMLHttpRequest();
+    var url = 'http://localhost:9090/api/getsessions';
+    http.open('POST', url, true);
+
+    //Send the proper header information along with the request
+    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+    http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+            alert(http.responseText);
+        }
+    }
+    http.send();
+}   

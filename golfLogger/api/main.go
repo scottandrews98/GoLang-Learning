@@ -16,7 +16,8 @@ func main() {
 
 	// Main application routes
 	//http.HandleFunc("/", home)
-	http.HandleFunc("/api/", apiRequest)
+	http.HandleFunc("/api/addsession", apiRequest)
+	http.HandleFunc("/api/getsessions", getSessions)
 
 	err := http.ListenAndServe(":9090", nil)
 
