@@ -33,12 +33,15 @@ function submitForm(golfType, totalShots){
 }
 
 function loadEvents(){
+    getSessions();
+    getClubs();
+}   
+
+function getSessions(){
+    // Gets all the golf sessions
     var http = new XMLHttpRequest();
     var url = 'http://localhost:9090/api/getsessions';
-    http.open('POST', url, true);
-
-    //Send the proper header information along with the request
-    http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    http.open('GET', url, true);
 
     http.onreadystatechange = function() {
         if(http.readyState == 4 && http.status == 200) {
@@ -54,4 +57,42 @@ function loadEvents(){
         }
     }
     http.send();
-}   
+}
+
+var clubs;
+function getClubs(){
+    var http = new XMLHttpRequest();
+
+    // Gets all the clubs and ranges that are used
+    var url = 'http://localhost:9090/api/getclubs';
+    http.open('GET', url, true);
+
+    http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+            clubs = JSON.parse(http.responseText);
+
+            var clubsDiv = document.getElementById('clubDistances');
+
+            for(var i = 0; i < clubs.length; i++) {
+                var obj = clubs[i];
+
+                var niceClubName = obj.clubName.replace(" ", "");
+
+                clubsDiv.innerHTML += `
+                    <div class="row" style="margin-top:8px;"><div class="col-sm-4"><p>`+obj.clubName+`</p></div><div class="col-sm-4"><p>`+obj.clubDistance+` Yards</p></div><div class="col-sm-4"><button data-toggle="collapse" href="#`+niceClubName+`" class="btn btn-primary">Edit</button></div>
+                        <div class="collapse" id="`+niceClubName+`">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <input type="number" class="form-control" value="`+obj.clubDistance+`">
+                                </div>
+                                <div class="col-sm-6">
+                                    <button data-toggle="collapse" href="#collapseExample" class="btn btn-primary">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            }
+        }
+    }
+    http.send();
+}
