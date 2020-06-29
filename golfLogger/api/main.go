@@ -19,6 +19,8 @@ func main() {
 	http.HandleFunc("/api/addsession", apiRequest)
 	http.HandleFunc("/api/getsessions", getSessions)
 	http.HandleFunc("/api/getclubs", getClubLengths)
+	http.HandleFunc("/api/savedistance", updateDistance)
+	http.HandleFunc("/api/getshots", getTotalGolfShots)
 
 	err := http.ListenAndServe(":9090", nil)
 
