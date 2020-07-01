@@ -20,7 +20,8 @@ func main() {
 	http.HandleFunc("/api/getsessions", getSessions)
 	http.HandleFunc("/api/getclubs", getClubLengths)
 	http.HandleFunc("/api/savedistance", updateDistance)
-	http.HandleFunc("/api/getshots", getTotalGolfShots)
+	http.HandleFunc("/api/getshots", getShotsAndAverages)
+	http.HandleFunc("/api/getgoodshots", getShotsAndAverages)
 
 	err := http.ListenAndServe(":9090", nil)
 

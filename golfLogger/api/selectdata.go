@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"html"
 	"log"
 	"net/http"
 	"time"
@@ -91,10 +92,10 @@ func getClubLengths(w http.ResponseWriter, r *http.Request) {
 
 type ShotCount struct {
 	ID         string `bson:"_id,omitempty"`
-	TotalShots int    `bson:"TotalGolfShots,omitempty"`
+	TotalShots int    `bson:"TotalGolfShots,omitempty,truncate"`
 }
 
-func getTotalGolfShots(w http.ResponseWriter, r *http.Request) {
+func getShotsAndAverages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	w.Header().Set("Content-Type", "application/json")
@@ -102,8 +103,14 @@ func getTotalGolfShots(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 	collection := client.Database("golfPlayer").Collection("sessions")
+	var aggregateExpression primitive.D
 
-	aggregateExpression := bson.D{{"$group", bson.M{"_id": "null", "TotalGolfShots": bson.M{"$sum": "$value"}}}}
+	if html.EscapeString(r.URL.Path) == "/api/getshots" {
+		aggregateExpression = bson.D{{"$group", bson.M{"_id": "null", "TotalGolfShots": bson.M{"$sum": "$value"}}}}
+	} else {
+		aggregateExpression = bson.D{{"$group", bson.M{"_id": "null", "TotalGolfShots": bson.M{"$avg": "$totalWellHit"}}}}
+	}
+
 	pipe, err := collection.Aggregate(ctx, mongo.Pipeline{aggregateExpression})
 
 	var loadedStruct []ShotCount

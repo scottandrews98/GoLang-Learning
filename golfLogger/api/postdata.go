@@ -30,12 +30,14 @@ func apiRequest(w http.ResponseWriter, r *http.Request) {
 		golfType := r.FormValue("golftype")
 		shots := r.FormValue("shots")
 		shotsInt, err := strconv.Atoi(shots)
+		wellHitShots := r.FormValue("wellHit")
+		wellHitInt, err := strconv.Atoi(wellHitShots)
 
 		if err != nil {
 			checkError(err)
 		}
 
-		inputResponse := newDocument(golfType, shotsInt)
+		inputResponse := newDocument(golfType, shotsInt, wellHitInt)
 
 		if inputResponse == true {
 			fmt.Fprintf(w, "Data Added")
@@ -47,12 +49,12 @@ func apiRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func newDocument(golfType string, shots int) bool {
+func newDocument(golfType string, shots int, wellHit int) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
 
 	collection := client.Database("golfPlayer").Collection("sessions")
-	collection.InsertOne(ctx, bson.M{"golfType": golfType, "value": shots})
+	collection.InsertOne(ctx, bson.M{"golfType": golfType, "value": shots, "totalWellHit": wellHit})
 
 	if err != nil {
 		checkError(err)
