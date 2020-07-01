@@ -19,12 +19,12 @@
             <div class="row">
                 <div class="col-sm-6 bg-secondary">
                     <h2>Total Golf Shots</h2>
-                    <p>360</p>
+                    <p id="golfShots">360</p>
                 </div>
 
                 <div class="col-sm-6 bg-secondary">
                     <h2>Percentage Of Good Shots</h2>
-                    <p>70%</p>
+                    <p id="wellHit">70%</p>
                 </div>
             </div>
 
@@ -46,6 +46,11 @@
                             <label for="totalShots">Total Shots</label>
                             <input type="number" class="form-control" placeholder="Total Shots" name="totalShots" id="totalShots">
                         </div>
+                        <div class="form-group">
+                            <label for="totalShots">Total Well Hit Shots</label>
+                            <input type="number" class="form-control" placeholder="Total Well Hit Shots" name="totalWellHit" id="totalWellHit">
+                        </div>
+
 
                         <button id="callapi" class="btn btn-primary">Add Golf Event</button>
                        
