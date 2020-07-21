@@ -23,6 +23,9 @@ func main() {
 	http.HandleFunc("/api/getshots", getShotsAndAverages)
 	http.HandleFunc("/api/getgoodshots", getShotsAndAverages)
 
+	// Maps request
+	http.HandleFunc("/api/findcourse", findGolf)
+
 	err := http.ListenAndServe(":9090", nil)
 
 	if err != nil {

@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -128,4 +130,19 @@ func updateDistance(w http.ResponseWriter, r *http.Request) {
 	default:
 		fmt.Fprintf(w, "Welcome To The No Track Website Stats API")
 	}
+}
+
+// Finds nearest golf courses depending on postcode entered
+func findGolf(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get("https://maps.googleapis.com/maps/api/place/textsearch/jsonc?query=restaurants+in+Sydney&key=AIzaSyB41kBZeAgW4rSncwzDxnbxpketSijzQXA")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	date, _ := ioutil.ReadAll(resp.Body)
+
+	fmt.Printf("%s\n", date)
 }
