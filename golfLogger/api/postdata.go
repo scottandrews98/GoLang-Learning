@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/tidwall/gjson"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -134,7 +135,7 @@ func updateDistance(w http.ResponseWriter, r *http.Request) {
 
 // Finds nearest golf courses depending on postcode entered
 func findGolf(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("https://maps.googleapis.com/maps/api/place/textsearch/jsonc?query=restaurants+in+Sydney&key=AIzaSyB41kBZeAgW4rSncwzDxnbxpketSijzQXA")
+	resp, err := http.Get("https://maps.googleapis.com/maps/api/place/textsearch/json?query=driving+range+in+Crewe&key=AIzaSyB41kBZeAgW4rSncwzDxnbxpketSijzQXA")
 
 	if err != nil {
 		log.Fatal(err)
@@ -142,7 +143,11 @@ func findGolf(w http.ResponseWriter, r *http.Request) {
 
 	defer resp.Body.Close()
 
-	date, _ := ioutil.ReadAll(resp.Body)
+	data, _ := ioutil.ReadAll(resp.Body)
 
-	fmt.Printf("%s\n", date)
+	// https://github.com/tidwall/gjson A great way of unmarshlling json if your use to javascript
+	value := gjson.GetBytes(data, "results.1.name")
+	fmt.Printf(value.String())
+
+	//fmt.Printf("%s\n", data)
 }
