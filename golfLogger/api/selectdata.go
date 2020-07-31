@@ -6,6 +6,7 @@ import (
 	"html"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -26,7 +27,7 @@ func getSessions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("databaseURL")))
 	collection := client.Database("golfPlayer").Collection("sessions")
 
 	cursor, err := collection.Find(ctx, bson.M{})
@@ -64,7 +65,7 @@ func getClubLengths(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("databaseURL")))
 	collection := client.Database("golfPlayer").Collection("clubs")
 
 	var clubs []Clubs
@@ -101,7 +102,7 @@ func getShotsAndAverages(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("databaseURL")))
 	collection := client.Database("golfPlayer").Collection("sessions")
 	var aggregateExpression primitive.D
 

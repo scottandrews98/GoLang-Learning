@@ -44,6 +44,7 @@ function loadEvents(){
     getClubs();
     getTotalShots("getshots");
     getTotalShots("getgoodshots");
+    getGolfLocations();
 }   
 
 function getSessions(){
@@ -165,6 +166,28 @@ function getTotalShots(shotType){
                 }else{
                     document.getElementById("wellHit").textContent = obj.TotalShots + "%"
                 }
+            }
+        }
+    }
+    http.send();
+}
+
+// Fetches the local golf ranges from the go lang api backend
+function getGolfLocations(){
+    var http = new XMLHttpRequest();
+    var url = 'http://localhost:9090/api/findcourse';
+    http.open('GET', url, true);
+
+    http.onreadystatechange = function() {
+        if(http.readyState == 4 && http.status == 200) {
+            let courses = JSON.parse(http.responseText);
+            //console.log(http.responseText);
+            for(var i = 0; i < courses.length; i++) {
+                var obj = courses[i];
+                
+                var coursesDiv = document.getElementById('localRanges');
+
+                coursesDiv.innerHTML += '<p>Place Name: '+ obj.Name+' Rating: '+obj.Rating+'/5';
             }
         }
     }

@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -54,7 +56,7 @@ func apiRequest(w http.ResponseWriter, r *http.Request) {
 
 func newDocument(golfType string, shots int, wellHit int) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("databaseURL")))
 
 	collection := client.Database("golfPlayer").Collection("sessions")
 	collection.InsertOne(ctx, bson.M{"golfType": golfType, "value": shots, "totalWellHit": wellHit})
@@ -70,7 +72,7 @@ func newDocument(golfType string, shots int, wellHit int) bool {
 
 func updateDocument(id string, distance int) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv("databaseURL")))
 
 	collection := client.Database("golfPlayer").Collection("clubs")
 
@@ -133,9 +135,16 @@ func updateDistance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type GolfCourses struct {
+	Name   string  `json:"Name,omitempty"`
+	Rating float64 `json:"Rating,omitempty"`
+}
+
 // Finds nearest golf courses depending on postcode entered
 func findGolf(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("https://maps.googleapis.com/maps/api/place/textsearch/json?query=driving+range+in+Crewe&key=AIzaSyB41kBZeAgW4rSncwzDxnbxpketSijzQXA")
+	apiKey := os.Getenv("googleAPIKey")
+
+	resp, err := http.Get("https://maps.googleapis.com/maps/api/place/textsearch/json?query=driving+range+in+Crewe&key=" + apiKey + "")
 
 	if err != nil {
 		log.Fatal(err)
@@ -146,8 +155,19 @@ func findGolf(w http.ResponseWriter, r *http.Request) {
 	data, _ := ioutil.ReadAll(resp.Body)
 
 	// https://github.com/tidwall/gjson A great way of unmarshlling json if your use to javascript
-	value := gjson.GetBytes(data, "results.1.name")
-	fmt.Printf(value.String())
+	result := gjson.GetBytes(data, "results")
 
-	//fmt.Printf("%s\n", data)
+	var courses []GolfCourses
+
+	result.ForEach(func(key, value gjson.Result) bool {
+		SiteName := value.Get("name")
+		SiteRating := value.Get("rating")
+
+		course := GolfCourses{SiteName.String(), SiteRating.Float()}
+		courses = append(courses, course)
+
+		return true // keep iterating
+	})
+
+	json.NewEncoder(w).Encode(courses)
 }

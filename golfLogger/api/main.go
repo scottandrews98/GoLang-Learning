@@ -13,6 +13,8 @@ import (
 
 // Function that starts the web server
 func main() {
+	// Set environment variables
+	setEnvironment()
 
 	// Main application routes
 	//http.HandleFunc("/", home)
